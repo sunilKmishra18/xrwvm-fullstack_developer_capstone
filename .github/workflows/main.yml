@@ -61,7 +61,7 @@ jobs:
       run: |
         files=$(find ./server/database -name "*.js")
         if [ -n "$files" ]; then
-          jshint $files
+          jshint --esversion 6 $files
         else
           echo "No JavaScript files found to lint."
         fi
