@@ -28,13 +28,17 @@ jobs:
     - name: Print working directory
       run: pwd
 
-    - name: List Python Files for Debugging
+    - name: List Python Files
       run: find . -name "*.py" -print
 
-    - name: Run Linter
+    - name: Run Python Linter
       run: |
-        find . -name "*.py" -exec flake8 {} +
-        echo "Linted all the Python files successfully"
+        files=$(find . -name "*.py")
+        if [ -n "$files" ]; then
+          flake8 $files
+        else
+          echo "No Python files found to lint."
+        fi
 
   lint_js:
     name: Lint JavaScript Files
@@ -52,10 +56,14 @@ jobs:
     - name: Install JSHint
       run: npm install -g jshint
 
-    - name: List JavaScript Files for Debugging
+    - name: List JavaScript Files
       run: find ./server/database -name "*.js" -print
 
-    - name: Run Linter
+    - name: Run JavaScript Linter
       run: |
-        find ./server/database -name "*.js" -exec jshint {} +
-        echo "Linted all the JavaScript files successfully"
+        files=$(find ./server/database -name "*.js")
+        if [ -n "$files" ]; then
+          jshint $files
+        else
+          echo "No JavaScript files found to lint."
+        fi
