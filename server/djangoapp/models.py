@@ -1,4 +1,5 @@
 # Uncomment the following imports before adding the Model code
+# flake8: noqa
 
 from django.db import models
 #from django.utils.timezone import now
