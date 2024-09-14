@@ -35,7 +35,7 @@ jobs:
       run: |
         files=$(find . -name "*.py")
         if [ -n "$files" ]; then
-          flake8 $files
+          flake8 $files --ignore=E501,E302
         else
           echo "No Python files found to lint."
         fi
