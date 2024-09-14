@@ -14,6 +14,7 @@ import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .models import CarMake, CarModel
+from .populate import initiate
 from .restapis import get_request, analyze_review_sentiments, post_review
 
 
@@ -91,17 +92,26 @@ def get_dealerships(request, state="All"):
 
 # Create a `get_dealer_reviews` view to render the reviews of a dealer
 def get_dealer_reviews(request, dealer_id):
-    # if dealer id has been provided
-    if(dealer_id):
-        endpoint = "/fetchReviews/dealer/"+str(dealer_id)
+    if dealer_id:
+        endpoint = f"/fetchReviews/dealer/{dealer_id}"
         reviews = get_request(endpoint)
+        print(f"Reviews fetched: {reviews}")  # Debugging
+
+        if not reviews:
+            return JsonResponse({"status": 404, "message": "No reviews found"})
+        
         for review_detail in reviews:
-            response = analyze_review_sentiments(review_detail['review'])
-            print(response)
-            review_detail['sentiment'] = response['sentiment']
-        return JsonResponse({"status":200,"reviews":reviews})
+            review_text = review_detail.get('review', '')
+            response = analyze_review_sentiments(review_text)
+            print(f"Sentiment analysis response: {response}")  # Debugging
+            if response is None:
+                response = {"sentiment": "Unknown"}
+            review_detail['sentiment'] = response.get('sentiment', 'Unknown')
+
+        return JsonResponse({"status": 200, "reviews": reviews})
     else:
-        return JsonResponse({"status":400,"message":"Bad Request"})
+        return JsonResponse({"status": 400, "message": "Bad Request"})
+
 
 # Create a `get_dealer_details` view to render the dealer details
 def get_dealer_details(request, dealer_id):
@@ -125,12 +135,14 @@ def add_review(request):
         return JsonResponse({"status":403,"message":"Unauthorized"})
 
 def get_cars(request):
-    count = CarMake.objects.filter().count()
-    print(count)
-    if(count == 0):
+    # Check if there are no CarMake records and initiate if necessary
+    if not CarMake.objects.exists():
         initiate()
-    car_models = CarModel.objects.select_related('car_make')
-    cars = []
-    for car_model in car_models:
-        cars.append({"CarModel": car_model.name, "CarMake": car_model.car_make.name})
-    return JsonResponse({"CarModels":cars})
+
+    # Fetch related car models and their car makes using the correct field name
+    car_models = CarModel.objects.select_related('make')
+
+    # Build the list of car models with their makes
+    cars = [{"CarModel": car_model.name, "CarMake": car_model.make.name} for car_model in car_models]
+
+    return JsonResponse({"CarModels": cars})
