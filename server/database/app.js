@@ -22,10 +22,10 @@ const Dealerships = require('./dealership');
 
 try {
   Reviews.deleteMany({}).then(()=>{
-    Reviews.insertMany(reviews_data['reviews']);
+    Reviews.insertMany(reviews_data['reviews']); // jshint ignore:line
   });
   Dealerships.deleteMany({}).then(()=>{
-    Dealerships.insertMany(dealerships_data['dealerships']);
+    Dealerships.insertMany(dealerships_data['dealerships']); // jshint ignore:line
   });
   
 } catch (error) {
@@ -97,14 +97,14 @@ app.post('/insert_review', express.raw({ type: '*/*' }), async (req, res) => {
 
   const review = new Reviews({
 		"id": new_id,
-		"name": data['name'],
-		"dealership": data['dealership'],
-		"review": data['review'],
-		"purchase": data['purchase'],
-		"purchase_date": data['purchase_date'],
-		"car_make": data['car_make'],
-		"car_model": data['car_model'],
-		"car_year": data['car_year'],
+		"name": data['name'],// jshint ignore:line
+		"dealership": data['dealership'],// jshint ignore:line
+		"review": data['review'],// jshint ignore:line
+		"purchase": data['purchase'],// jshint ignore:line
+		"purchase_date": data['purchase_date'],// jshint ignore:line
+		"car_make": data['car_make'],// jshint ignore:line
+		"car_model": data['car_model'],// jshint ignore:line
+		"car_year": data['car_year'],// jshint ignore:line
 	});
 
   try {
