@@ -21,32 +21,46 @@ const Register = () => {
   const register = async (e) => {
     e.preventDefault();
 
-    let register_url = window.location.origin+"/djangoapp/register";
-    
-    const res = await fetch(register_url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "userName": userName,
-            "password": password,
-            "firstName":firstName,
-            "lastName":lastName,
-            "email":email
-        }),
-    });
+    try {
+        let register_url = window.location.origin + "/register/";
+        const res = await fetch(register_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                "userName": userName,
+                "password": password,
+                "firstName": firstName,
+                "lastName": lastName,
+                "email": email
+            }),
+        });
 
-    const json = await res.json();
-    if (json.status) {
-        sessionStorage.setItem('username', json.userName);
-        window.location.href = window.location.origin;
-    }
-    else if (json.error === "Already Registered") {
-      alert("The user with same username is already registered");
-      window.location.href = window.location.origin;
+        // Check if response is JSON
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const json = await res.json();
+            console.log("JSON response: ", json);
+
+            if (json.status) {
+                sessionStorage.setItem('username', json.userName);
+                window.location.href = window.location.origin;
+            } else if (json.error === "Already Registered") {
+                alert("The user with the same username is already registered");
+                window.location.href = window.location.origin;
+            }
+        } else {
+            // If the response is not JSON, log the raw text or HTML
+            const text = await res.text();
+            console.error("Received non-JSON response: ", text);
+        }
+    } catch (error) {
+        console.error("Error during registration: ", error);
     }
 };
+
+
 
   return(
     <div className="register_container" style={{width: "50%"}}>
